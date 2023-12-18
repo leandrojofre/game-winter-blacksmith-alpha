@@ -4,11 +4,17 @@ class Tile{
 		this.y = y;
 		this.width = WIDTH;
 		this.height = HEIGHT;
+		this.sides = {
+			top: this.y,
+			bottom: this.y + this.height,
+			left: this.x,
+			right: this.x + this.width
+		};
 	}
 
-	setPos(x, y) {
-		this.x += x;
-		this.y += y;
+	draw() {
+		CONTEXT.fillStyle='red';
+		CONTEXT.fillRect(this.x, this.y, this.width, this.height);				
 	}
 }
 
@@ -37,25 +43,6 @@ class Sprite {
 		this.img.src = imgSrc;
 		this.sx = sx;
 		this.sy = sy;
-		this.sides = {
-			top: this.y,
-			bottom: this.y + this.height,
-			left: this.x,
-			right: this.x + this.width
-		};
-	}
-
-	setPos(x, y) {
-		this.x += x;
-		this.y += y;
-
-		this.collisions?.forEach(tile => tile.setPos(x, y));
-		this.events?.forEach(tile => tile.setPos(x, y));
-
-		this.setSides();
-	}
-
-	setSides() {
 		this.sides = {
 			top: this.y,
 			bottom: this.y + this.height,
@@ -127,18 +114,6 @@ class Player extends Character{
 			gravity: 1
 		};
 	}
-
-	walk() {
-		this.velocity.x = 0;
-		if (KEY_PRESSED.a) this.velocity.x = -BASE_SPEED;
-		else if (KEY_PRESSED.d) this.velocity.x = BASE_SPEED;
-
-		thisRoom.setPos(-this.velocity.x, -this.velocity.y);
-
-		if (this.sides.bottom + this.velocity.y < SCREEN_HEIGHT) 
-			this.velocity.y += this.velocity.gravity;
-		else this.velocity.y = 0;
-	}
 }
 
 class Npc extends Character{
@@ -151,9 +126,5 @@ class Npc extends Character{
 			imgSrc,
 			room
 		});
-	}
-
-	move() {
-
 	}
 }

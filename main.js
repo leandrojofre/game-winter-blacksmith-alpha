@@ -5,18 +5,11 @@ function animateGame() {
 	CONTEXT.fillStyle = "cornflowerblue";
 	CONTEXT.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	ROOMS.test.draw();
+	thisRoom.draw();
+	thisRoom.collisions.forEach(tile => tile.draw())
 	
 	player.draw();
 	NPCS.placeholder.draw();
-	player.walk();
-}
-
-function moveObjects(x, y) {
-	thisRoom.setPos(x, y);
-
-	for (const NPC_KEY of Object.keys(thisRoomNpcs))
-		thisRoomNpcs[NPC_KEY].setPos(x, y);
 }
 
 async function changeRoom(roomName, destinationTileName) {
@@ -36,7 +29,6 @@ async function changeRoom(roomName, destinationTileName) {
 	let offSetX = player.x - newPos.x - (newPos.width / 2 - player.width / 2);
 	let offSetY = player.y - newPos.y - (newPos.height / 2 - player.height / 2);
 
-	moveObjects(offSetX, offSetY);
 	startGame();
 }
 
@@ -59,7 +51,7 @@ async function constructRoom(room) {
 		MAPPED_DATA.forEach((row, i) => {
 			row.forEach((col, j) => {
 				if (col === SYMBOL_COLLISION)
-					room.collisions.push(new CollisionTile({x: i * WIDTH, y: j * HEIGHT}));
+					room.collisions.push(new CollisionTile({x: j * WIDTH, y: i * HEIGHT}));
 			});
 		});
 
@@ -86,7 +78,6 @@ async function createObjects() {
 	.then(response => response.json())
 	.then(json => {
 		for (const CHARACTER_KEY of Object.keys(json)) {
-			console.log(CHARACTER_KEY);
 			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/sprite.png`;
 
 			if (CHARACTER_KEY === "player") {
