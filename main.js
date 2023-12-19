@@ -39,7 +39,6 @@ async function constructRoom(room) {
 		const SYMBOL_COLLISION = roomData.tilesets.find(tileset => tileset.source === "tiles-tsx\/bounds.tsx").firstgid;
 		const SYMBOL_EVENT = SYMBOL_COLLISION + 1;
 		const SYMBOL_FOREGROUND = SYMBOL_COLLISION + 2;
-		const SYMBOL_SPAWN = SYMBOL_COLLISION + 3;
 
 		const BOUNDS_ARRAY = roomData.layers.find(layer => layer.name === "bounds").data;
 		const EVENTS_ARRAY_DATA = roomData.layers.find(layer => layer.name === "events").layers;
