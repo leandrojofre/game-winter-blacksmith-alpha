@@ -6,9 +6,7 @@ const BASE_SPEED = 4;
 const WIDTH = 32;
 const HEIGHT = 32;
 const KEY_PRESSED = {
-	w: false,
 	a: false,
-	s: false,
 	d: false,
 	space: false
 }

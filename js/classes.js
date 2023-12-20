@@ -43,7 +43,8 @@ class EventTile extends Tile {
 }
 
 class Sprite {
-	constructor({x, y, width=0, height=0, imgSrc, sx=0, sy=0}) {
+	constructor({name="", x=0, y=0, width=0, height=0, imgSrc, sx=0, sy=0}) {
+		this.name = name;
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -89,11 +90,11 @@ class Sprite {
 class Room extends Sprite{
 	constructor({name, x, y, imgSrc}) {
 		super({
+			name,
 			x,
 			y,
 			imgSrc
 		});
-		this.name = name;
 		this.img.onload = () => {
 			this.width = this.img.width;
 			this.height = this.img.height;
@@ -112,8 +113,9 @@ class Room extends Sprite{
 }
 
 class Character extends Sprite{
-	constructor({x, y, width, height, imgSrc, room}) {
+	constructor({name, x, y, width, height, imgSrc, room}) {
 		super({
+			name,
 			x,
 			y,
 			width,
@@ -121,55 +123,41 @@ class Character extends Sprite{
 			imgSrc
 		});
 		this.room = room;
-	}
-}
-
-class Player extends Character{
-	constructor({y, width, height, imgSrc, room}) {
-		super({
-			x: SCREEN_WIDTH / 2 - width / 2,
-			y,
-			width,
-			height,
-			imgSrc,
-			room
-		});
 		this.velocity = {
 			y: 0,
 			x: 0,
 			gravity: 1
 		};
 	}
+}
 
-	checkCollisions() {
-		for(const OBJ of [...thisRoom.collisions]) {
-			if(
-				this.sides.bottom + this.velocity.y > OBJ.sides.top &&
-				this.sides.top + this.velocity.y < OBJ.sides.bottom &&
-				this.sides.left < OBJ.sides.right &&
-				this.sides.right > OBJ.sides.left
-			)
-				return true;
-			else return false;
-		}
+class Player extends Character{
+	constructor({name, width, height, imgSrc, room}) {
+		super({
+			name,
+			x: SCREEN_WIDTH / 2 - width / 2,
+			y: SCREEN_HEIGHT / 2 - height / 2,
+			width,
+			height,
+			imgSrc,
+			room
+		});
+		this.isOnGround = false;
 	}
 
-	move() {
-		this.velocity.x = 0;
-		if (KEY_PRESSED.a) 
-			this.velocity.x = -BASE_SPEED;
-		if (KEY_PRESSED.d) 
-			this.velocity.x = BASE_SPEED;
+	checkCollisions(obj) {
+		return (
+			this.sides.left <= obj.sides.right &&
+			this.sides.right >= obj.sides.left &&
+			this.sides.bottom >= obj.sides.top &&
+			this.sides.top <= obj.sides.bottom
+		);
+	}
 
+	checkHorizontalCollisions() {
 		moveRoom(-this.velocity.x, 0);
-
 		for(const TILE of thisRoom.collisions) {
-			if (!(
-				this.sides.left <= TILE.sides.right &&
-				this.sides.right >= TILE.sides.left &&
-				this.sides.bottom >= TILE.sides.top &&
-				this.sides.top <= TILE.sides.bottom
-			)) continue;
+			if (!this.checkCollisions(TILE)) continue;
 			
 			if (this.velocity.x < 0) {
 				moveRoom(-(TILE.sides.right + 0.01 - this.x), 0);
@@ -180,17 +168,13 @@ class Player extends Character{
 				break;
 			}
 		}
+	}
 
+	checkVerticalCollisions() {
 		this.velocity.y += this.velocity.gravity;
 		moveRoom(0, -this.velocity.y);
-
 		for(const TILE of thisRoom.collisions) {
-			if (!(
-				this.sides.left <= TILE.sides.right &&
-				this.sides.right >= TILE.sides.left &&
-				this.sides.bottom >= TILE.sides.top &&
-				this.sides.top <= TILE.sides.bottom
-			)) continue;
+			if (!this.checkCollisions(TILE)) continue;
 
 			if (this.velocity.y < 0) {
 				this.velocity.y = 0;
@@ -199,18 +183,37 @@ class Player extends Character{
 			}
 			if (this.velocity.y > 0) {
 				this.velocity.y = 0;
+				this.isOnGround = true;
 				moveRoom(0, -(TILE.sides.top - this.height - 0.01 - this.y));
 				break;
 			}			
 		}
 	}
+
+	move() {
+		this.velocity.x = 0;
+		if (KEY_PRESSED.a) 
+			this.velocity.x = -BASE_SPEED;
+		if (KEY_PRESSED.d) 
+			this.velocity.x = BASE_SPEED;
+
+		this.checkHorizontalCollisions();
+
+		if (KEY_PRESSED.space && this.isOnGround) {
+			this.isOnGround = false;
+			this.velocity.y = -BASE_SPEED * 5;
+		}
+
+		this.checkVerticalCollisions();
+	}
 }
 
 class Npc extends Character{
-	constructor({x, y, width, height, imgSrc, room}) {
+	constructor({name, width, height, imgSrc, room}) {
 		super({
-			x,
-			y,
+			name,
+			x: ROOMS[room].events.find(event => event.name === `spawn-${name}`).x,
+			y: ROOMS[room].events.find(event => event.name === `spawn-${name}`).y,
 			width,
 			height,
 			imgSrc,

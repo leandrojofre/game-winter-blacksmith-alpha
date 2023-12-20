@@ -3,16 +3,10 @@ function keyDown(event) {
 	
 	switch (key) {
 		case " ":
-			if (!KEY_PRESSED.space && player.velocity.y === 0) {
-				KEY_PRESSED.space = true;
-				player.velocity.y = -BASE_SPEED * 4;
-			}
+			KEY_PRESSED.space = true;
 			break;
 		case "a":
 			KEY_PRESSED.a = true;
-			break;
-		case "s":
-			KEY_PRESSED.s = true;
 			break;
 		case "d":
 			KEY_PRESSED.d = true;
@@ -31,9 +25,6 @@ function keyUp(event) {
 			break;
 		case "a":
 			KEY_PRESSED.a = false;
-			break;
-		case "s":
-			KEY_PRESSED.s = false;
 			break;
 		case "d":
 			KEY_PRESSED.d = false;

@@ -43,7 +43,6 @@ async function constructRoom(room) {
 	.then(response => response.json())
 	.then(roomData => {
 		const SYMBOL_COLLISION = roomData.tilesets.find(tileset => tileset.source === "tiles-tsx\/bounds.tsx").firstgid;
-		const SYMBOL_EVENT = SYMBOL_COLLISION + 1;
 		const SYMBOL_FOREGROUND = SYMBOL_COLLISION + 2;
 
 		const BOUNDS_ARRAY = roomData.layers.find(layer => layer.name === "bounds").data;
@@ -62,6 +61,7 @@ async function constructRoom(room) {
 
 		EVENTS_ARRAY_DATA.forEach(event => {
 			event.objects[0].name = event.name;
+			event.objects[0].y -= event.objects[0].height;
 			room.events.push(new EventTile(event.objects[0]));
 		});
 	});
@@ -84,6 +84,7 @@ async function createObjects() {
 	.then(json => {
 		for (const CHARACTER_KEY of Object.keys(json)) {
 			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/sprite.png`;
+			json[CHARACTER_KEY].name = CHARACTER_KEY;
 
 			if (CHARACTER_KEY === "player") {
 				player = new Player(json[CHARACTER_KEY]);
@@ -96,7 +97,7 @@ async function createObjects() {
 
 function startGame() {
 	window.addEventListener("keydown", keyDown);
-	window.addEventListener("keyup", keyUp);	
+	window.addEventListener("keyup", keyUp);
 	animateGame();
 }
 
