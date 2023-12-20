@@ -1,12 +1,12 @@
 {
 	"player": {
 		"room": "test",
-		"width": 32,
-		"height": 64
+		"width": 256,
+		"height": 128
 	},
 	"placeholder": {
 		"room": "test",
-		"width": 32,
-		"height": 64
+		"width": 128,
+		"height": 128
 	}
 }

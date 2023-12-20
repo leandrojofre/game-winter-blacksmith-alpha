@@ -48,15 +48,15 @@
                  "objects":[
                         {
                          "gid":4,
-                         "height":64,
+                         "height":128,
                          "id":1,
                          "name":"",
                          "rotation":0,
                          "type":"",
                          "visible":true,
-                         "width":32,
-                         "x":128,
-                         "y":288
+                         "width":128,
+                         "x":96,
+                         "y":416
                         }],
                  "opacity":1,
                  "type":"objectgroup",
@@ -71,14 +71,14 @@
                  "objects":[
                         {
                          "gid":4,
-                         "height":64,
+                         "height":128,
                          "id":2,
                          "name":"",
                          "rotation":0,
                          "type":"",
                          "visible":true,
-                         "width":32,
-                         "x":224,
+                         "width":128,
+                         "x":416,
                          "y":416
                         }],
                  "opacity":1,

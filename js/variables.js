@@ -2,13 +2,13 @@ const $GAME_DISPLAY = document.getElementById("game-display");
 const CONTEXT = $GAME_DISPLAY.getContext('2d');
 const SCREEN_WIDTH = 64 * 16;
 const SCREEN_HEIGHT = 64 * 10;
-const BASE_SPEED = 4;
+const BASE_SPEED = 6;
 const WIDTH = 32;
 const HEIGHT = 32;
 const KEY_PRESSED = {
-	a: false,
-	d: false,
-	space: false
+	'a': false,
+	'd': false,
+	' ': false
 }
 const ROOMS = {};
 const NPCS = {};
@@ -28,7 +28,7 @@ let thisRoomNpcs = {
 	toArray: () => {
 		let npcArray = [];
 		for(const NPC_KEY of thisRoomNpcs.npcList)
-			npcArray.push(NPCS[NPC_KEY]);
+			npcArray.push(thisRoomNpcs[NPC_KEY]);
 		return npcArray;
 	}
 };

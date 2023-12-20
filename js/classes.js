@@ -4,31 +4,22 @@ class Tile{
 		this.y = y;
 		this.width = WIDTH;
 		this.height = HEIGHT;
-		this.sides = {
-			top: this.y,
-			bottom: this.y + this.height,
-			left: this.x,
-			right: this.x + this.width
-		};
-	}
-
-	setSides() {
-		this.sides = {
-			top: this.y,
-			bottom: this.y + this.height,
-			left: this.x,
-			right: this.x + this.width
-		};
 	}
 
 	draw() {
 		CONTEXT.fillStyle='red';
-		CONTEXT.fillRect(this.sides.left, this.sides.bottom, this.sides.right - this.sides.left, this.sides.top - this.sides.bottom);				
+		CONTEXT.fillRect(
+			this.x,
+			this.y,
+			this.width,
+			this.height
+		);				
 	}
 }
 
 class CollisionTile extends Tile {
-	constructor({x, y}) {
+	constructor({x,
+		y}) {
 		super({x, y});
 	}
 }
@@ -43,7 +34,7 @@ class EventTile extends Tile {
 }
 
 class Sprite {
-	constructor({name="", x=0, y=0, width=0, height=0, imgSrc, sx=0, sy=0}) {
+	constructor({name="", x=0, y=0, width=0, height=0, imgSrc, sx=0, sy=0, frameStart=0, frameEnd=1}) {
 		this.name = name;
 		this.x = x;
 		this.y = y;
@@ -51,39 +42,43 @@ class Sprite {
 		this.height = height;
 		this.img = new Image();
 		this.img.src = imgSrc;
-		this.sx = sx;
-		this.sy = sy;
-		this.sides = {
-			top: this.y,
-			bottom: this.y + this.height,
-			left: this.x,
-			right: this.x + this.width
-		};
+		this.frameCrop = {
+			x: sx,
+			y: sy,
+			width: this.width,
+			height: this.height,
+			counter: 0,
+			rate: 4,
+			start: frameStart,
+			end: frameEnd
+		}
 	}
 
-	setSides() {
-		this.sides = {
-			top: this.y,
-			bottom: this.y + this.height,
-			left: this.x,
-			right: this.x + this.width
-		};
+	updateFrame() {
+		this.frameCrop.counter++;
+
+		if (this.frameCrop.counter < this.frameCrop.end && animationID % this.frameCrop.rate === 0)
+			this.frameCrop.counter++;
+		else this.frameCrop.counter = this.frameCrop.start;
+
+		this.frameCrop.x = this.frameCrop.counter * this.frameCrop.width
 	}
 
 	draw() {
 		CONTEXT.imageSmoothingEnabled = false;
-		
 		CONTEXT.drawImage(
 			this.img,
-			this.sx,
-			this.sy,
-			this.width,
-			this.height,
+			this.frameCrop.x,
+			this.frameCrop.y,
+			this.frameCrop.width,
+			this.frameCrop.height,
 			this.x,
 			this.y,
 			this.width,
 			this.height
 		);
+
+		this.updateFrame();
 	}
 }
 
@@ -98,6 +93,8 @@ class Room extends Sprite{
 		this.img.onload = () => {
 			this.width = this.img.width;
 			this.height = this.img.height;
+			this.frameCrop.width = this.img.width;
+			this.frameCrop.height = this.img.height;
 		}
 		this.collisions = [];
 		this.events = [];
@@ -107,7 +104,6 @@ class Room extends Sprite{
 		for(const OBJ of [this, ...this.collisions, ...this.events]) {
 			OBJ.x += x;
 			OBJ.y += y;
-			OBJ.setSides();
 		}
 	}
 }
@@ -123,11 +119,6 @@ class Character extends Sprite{
 			imgSrc
 		});
 		this.room = room;
-		this.velocity = {
-			y: 0,
-			x: 0,
-			gravity: 1
-		};
 	}
 }
 
@@ -136,21 +127,32 @@ class Player extends Character{
 		super({
 			name,
 			x: SCREEN_WIDTH / 2 - width / 2,
-			y: SCREEN_HEIGHT / 2 - height / 2,
+			y: SCREEN_HEIGHT * (3/5) - height / 2,
 			width,
 			height,
 			imgSrc,
 			room
 		});
 		this.isOnGround = false;
+		this.velocity = {
+			y: 0,
+			x: 0,
+			gravity: 1
+		};
+		this.hitbox = {
+			x: this.x + WIDTH * 3,
+			y: this.y + HEIGHT * 1.5,
+			width: WIDTH * 2,
+			height: HEIGHT * 2.5
+		};
 	}
 
 	checkCollisions(obj) {
 		return (
-			this.sides.left <= obj.sides.right &&
-			this.sides.right >= obj.sides.left &&
-			this.sides.bottom >= obj.sides.top &&
-			this.sides.top <= obj.sides.bottom
+			this.hitbox.x <= obj.x + obj.width &&
+			this.hitbox.x + this.hitbox.width >= obj.x &&
+			this.hitbox.y + this.hitbox.height >= obj.y &&
+			this.hitbox.y <= obj.y + obj.height
 		);
 	}
 
@@ -160,11 +162,11 @@ class Player extends Character{
 			if (!this.checkCollisions(TILE)) continue;
 			
 			if (this.velocity.x < 0) {
-				moveRoom(-(TILE.sides.right + 0.01 - this.x), 0);
+				moveRoom(-(TILE.x + TILE.width + 0.01 - this.hitbox.x), 0);
 				break;
 			}
 			if (this.velocity.x > 0) {
-				moveRoom(-(TILE.sides.left - this.width - 0.01 - this.x), 0);
+				moveRoom(-(TILE.x - this.hitbox.width - 0.01 - this.hitbox.x), 0);
 				break;
 			}
 		}
@@ -178,33 +180,41 @@ class Player extends Character{
 
 			if (this.velocity.y < 0) {
 				this.velocity.y = 0;
-				moveRoom(0, -(TILE.sides.bottom + 0.01 - this.y));
+				moveRoom(0, -(TILE.y + TILE.height + 0.01 - this.hitbox.y));
 				break;
 			}
 			if (this.velocity.y > 0) {
 				this.velocity.y = 0;
 				this.isOnGround = true;
-				moveRoom(0, -(TILE.sides.top - this.height - 0.01 - this.y));
+				moveRoom(0, -(TILE.y - this.hitbox.height - 0.01 - this.hitbox.y));
 				break;
-			}			
+			}
 		}
 	}
 
 	move() {
 		this.velocity.x = 0;
-		if (KEY_PRESSED.a) 
+		if (KEY_PRESSED["a"])
 			this.velocity.x = -BASE_SPEED;
-		if (KEY_PRESSED.d) 
+		if (KEY_PRESSED["d"])
 			this.velocity.x = BASE_SPEED;
 
 		this.checkHorizontalCollisions();
 
-		if (KEY_PRESSED.space && this.isOnGround) {
+		if (KEY_PRESSED[" "] && this.isOnGround) {
 			this.isOnGround = false;
 			this.velocity.y = -BASE_SPEED * 5;
 		}
 
 		this.checkVerticalCollisions();
+
+		CONTEXT.fillStyle = "rgba(255, 0, 0, 0.2)"
+		CONTEXT.fillRect(
+			this.hitbox.x,
+			this.hitbox.y,
+			this.hitbox.width,
+			this.hitbox.height
+		);		
 	}
 }
 
@@ -224,6 +234,5 @@ class Npc extends Character{
 	move(x, y) {
 		this.x += x;
 		this.y += y;
-		this.setSides();
 	}
 }
