@@ -18,8 +18,7 @@ class Tile{
 }
 
 class CollisionTile extends Tile {
-	constructor({x,
-		y}) {
+	constructor({x, y}) {
 		super({x, y});
 	}
 }
@@ -34,7 +33,7 @@ class EventTile extends Tile {
 }
 
 class Sprite {
-	constructor({name="", x=0, y=0, width=0, height=0, imgSrc, sx=0, sy=0, frameStart=0, frameEnd=1}) {
+	constructor({name="", x=0, y=0, width=0, height=0, imgSrc, sx=0, sy=0, animationActive = false, frameStart=0, frameEnd=1, frameRate}) {
 		this.name = name;
 		this.x = x;
 		this.y = y;
@@ -43,23 +42,25 @@ class Sprite {
 		this.img = new Image();
 		this.img.src = imgSrc;
 		this.frameCrop = {
+			active: animationActive,
 			x: sx,
 			y: sy,
-			width: this.width,
-			height: this.height,
+			width: width,
+			height: height,
 			counter: 0,
-			rate: 4,
+			rate: frameRate,
 			start: frameStart,
 			end: frameEnd
 		}
 	}
 
 	updateFrame() {
-		this.frameCrop.counter++;
+		if (animationID % this.frameCrop.rate !== 0) return;
 
-		if (this.frameCrop.counter < this.frameCrop.end && animationID % this.frameCrop.rate === 0)
+		if (this.frameCrop.counter < this.frameCrop.end)
 			this.frameCrop.counter++;
-		else this.frameCrop.counter = this.frameCrop.start;
+		else
+			this.frameCrop.counter = this.frameCrop.start;
 
 		this.frameCrop.x = this.frameCrop.counter * this.frameCrop.width
 	}
@@ -78,7 +79,7 @@ class Sprite {
 			this.height
 		);
 
-		this.updateFrame();
+		if (this.frameCrop.active) this.updateFrame();
 	}
 }
 
@@ -109,21 +110,33 @@ class Room extends Sprite{
 }
 
 class Character extends Sprite{
-	constructor({name, x, y, width, height, imgSrc, room}) {
+	constructor({name, x, y, width, height, imgSrc, room, animationActive, frameStart, frameEnd, frameRate}) {
 		super({
 			name,
 			x,
 			y,
 			width,
 			height,
-			imgSrc
+			imgSrc,
+			animationActive,
+			frameStart,
+			frameEnd,
+			frameRate
 		});
 		this.room = room;
+	}
+
+	changeSprite(imgName) {
+		let newImg = new Image();
+		newImg.src = `img/characters/${this.name}/${imgName}.png`;
+
+		if (newImg.src === this.img.src) return;
+		newImg.onload = () => this.img = newImg;
 	}
 }
 
 class Player extends Character{
-	constructor({name, width, height, imgSrc, room}) {
+	constructor({name, width, height, imgSrc, room, animationActive, frameStart, frameEnd, frameRate}) {
 		super({
 			name,
 			x: SCREEN_WIDTH / 2 - width / 2,
@@ -131,7 +144,11 @@ class Player extends Character{
 			width,
 			height,
 			imgSrc,
-			room
+			room,
+			animationActive,
+			frameStart,
+			frameEnd,
+			frameRate
 		});
 		this.isOnGround = false;
 		this.velocity = {
@@ -140,7 +157,7 @@ class Player extends Character{
 			gravity: 1
 		};
 		this.hitbox = {
-			x: this.x + WIDTH * 3,
+			x: this.x + WIDTH * 2,
 			y: this.y + HEIGHT * 1.5,
 			width: WIDTH * 2,
 			height: HEIGHT * 2.5
@@ -194,27 +211,19 @@ class Player extends Character{
 
 	move() {
 		this.velocity.x = 0;
-		if (KEY_PRESSED["a"])
-			this.velocity.x = -BASE_SPEED;
-		if (KEY_PRESSED["d"])
-			this.velocity.x = BASE_SPEED;
-
-		this.checkHorizontalCollisions();
-
 		if (KEY_PRESSED[" "] && this.isOnGround) {
 			this.isOnGround = false;
-			this.velocity.y = -BASE_SPEED * 5;
+			this.velocity.y = -BASE_SPEED * 4;
+		} else if (KEY_PRESSED["a"]) {
+			this.changeSprite("moving-left");
+			this.velocity.x = -BASE_SPEED;
+		} else if (KEY_PRESSED["d"]) {
+			this.changeSprite("moving-right");
+			this.velocity.x = BASE_SPEED;
 		}
 
-		this.checkVerticalCollisions();
-
-		CONTEXT.fillStyle = "rgba(255, 0, 0, 0.2)"
-		CONTEXT.fillRect(
-			this.hitbox.x,
-			this.hitbox.y,
-			this.hitbox.width,
-			this.hitbox.height
-		);		
+		this.checkHorizontalCollisions();
+		this.checkVerticalCollisions();	
 	}
 }
 

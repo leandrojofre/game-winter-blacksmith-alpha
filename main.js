@@ -31,8 +31,8 @@ async function changeRoom(roomName, destinationTileName) {
 		width: destinationTile.width,
 		height: destinationTile.height
 	};
-	let offSetX = player.x - newPos.x - (newPos.width / 2 - player.width / 2);
-	let offSetY = player.y - newPos.y - (newPos.height / 2 - player.height / 2);
+	let offSetX = player.hitbox.x - newPos.x - (newPos.width / 2 - player.hitbox.width / 2);
+	let offSetY = player.hitbox.y - newPos.y - (newPos.height / 2 - player.hitbox.height / 2);
 
 	moveRoom(offSetX, offSetY)
 	startGame();
@@ -83,12 +83,12 @@ async function createObjects() {
 	.then(response => response.json())
 	.then(json => {
 		for (const CHARACTER_KEY of Object.keys(json)) {
-			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/sprite.png`;
+			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/${json[CHARACTER_KEY].spriteName}.png`;
 			json[CHARACTER_KEY].name = CHARACTER_KEY;
 
-			if (CHARACTER_KEY === "player") {
+			if (CHARACTER_KEY === "player") 
 				player = new Player(json[CHARACTER_KEY]);
-			} else NPCS[CHARACTER_KEY] = new Npc(json[CHARACTER_KEY]);
+			else NPCS[CHARACTER_KEY] = new Npc(json[CHARACTER_KEY]);
 		}
 	});
 

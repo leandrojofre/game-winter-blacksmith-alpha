@@ -48,13 +48,13 @@
                  "objects":[
                         {
                          "gid":4,
-                         "height":128,
+                         "height":80,
                          "id":1,
                          "name":"",
                          "rotation":0,
                          "type":"",
                          "visible":true,
-                         "width":128,
+                         "width":64,
                          "x":96,
                          "y":416
                         }],

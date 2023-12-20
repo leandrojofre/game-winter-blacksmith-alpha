@@ -1,11 +1,16 @@
 {
 	"player": {
 		"room": "test",
-		"width": 256,
+		"spriteName": "moving-right",
+		"frameStart": 1,
+		"frameEnd": 4,
+		"frameRate": 8,
+		"width": 192,
 		"height": 128
 	},
 	"placeholder": {
 		"room": "test",
+		"spriteName": "sprite",
 		"width": 128,
 		"height": 128
 	}
