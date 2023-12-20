@@ -1,15 +1,17 @@
 {
 	"player": {
-		"room": "test-room",
-		"y": 288,
-		"width": 32,
-		"height": 64
+		"room": "test",
+		"spriteName": "moving-right",
+		"frameStart": 1,
+		"frameEnd": 4,
+		"frameRate": 8,
+		"width": 192,
+		"height": 128
 	},
 	"placeholder": {
-		"room": "test-room",
-		"x": 224,
-		"y": 288,
-		"width": 32,
-		"height": 64
+		"room": "test",
+		"spriteName": "sprite",
+		"width": 128,
+		"height": 128
 	}
 }

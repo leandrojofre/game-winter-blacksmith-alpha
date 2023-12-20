@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="8" nextobjectid="3">
  <editorsettings>
-  <export target="test-room.json" format="json"/>
+  <export target="test.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="tiles-tsx/bounds.tsx"/>
  <imagelayer id="2" name="room">
@@ -18,7 +18,7 @@
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
-0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
+0,1,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
 0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,
@@ -28,10 +28,10 @@
  </layer>
  <group id="3" name="events">
   <objectgroup id="6" name="spawn-player">
-   <object id="1" gid="4" x="128" y="256" width="32" height="32"/>
+   <object id="1" gid="4" x="96" y="416" width="64" height="80"/>
   </objectgroup>
   <objectgroup id="7" name="spawn-placeholder">
-   <object id="2" gid="4" x="352" y="128" width="32" height="32"/>
+   <object id="2" gid="4" x="416" y="416" width="128" height="128"/>
   </objectgroup>
  </group>
 </map>

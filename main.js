@@ -6,18 +6,23 @@ function animateGame() {
 	CONTEXT.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	thisRoom.draw();
-	thisRoom.collisions.forEach(tile => tile.draw())
-	
+	thisRoom.collisions.forEach(tile => tile.draw());	
+	thisRoomNpcs.toArray().forEach(npc => npc.draw());
 	player.draw();
-	NPCS.placeholder.draw();
+
+	player.move();
+}
+
+function moveRoom(x, y) {
+	for(const OBJ of [...thisRoomNpcs.toArray(), thisRoom])
+		OBJ.move(x, y);
 }
 
 async function changeRoom(roomName, destinationTileName) {
 	thisRoom = ROOMS[roomName];
-	thisRoomNpcs = {};
 
 	for (const NPC_KEY of Object.keys(NPCS))
-		if (NPCS[NPC_KEY].room === roomName) thisRoomNpcs[NPC_KEY] = NPCS[NPC_KEY];
+		if (NPCS[NPC_KEY].room === roomName) thisRoomNpcs.addNPC(NPC_KEY);
 
 	let destinationTile = thisRoom.events.find(tile => tile.name === destinationTileName);
 	let newPos = {
@@ -26,9 +31,10 @@ async function changeRoom(roomName, destinationTileName) {
 		width: destinationTile.width,
 		height: destinationTile.height
 	};
-	let offSetX = player.x - newPos.x - (newPos.width / 2 - player.width / 2);
-	let offSetY = player.y - newPos.y - (newPos.height / 2 - player.height / 2);
+	let offSetX = player.hitbox.x - newPos.x - (newPos.width / 2 - player.hitbox.width / 2);
+	let offSetY = player.hitbox.y - newPos.y - (newPos.height / 2 - player.hitbox.height / 2);
 
+	moveRoom(offSetX, offSetY)
 	startGame();
 }
 
@@ -37,7 +43,6 @@ async function constructRoom(room) {
 	.then(response => response.json())
 	.then(roomData => {
 		const SYMBOL_COLLISION = roomData.tilesets.find(tileset => tileset.source === "tiles-tsx\/bounds.tsx").firstgid;
-		const SYMBOL_EVENT = SYMBOL_COLLISION + 1;
 		const SYMBOL_FOREGROUND = SYMBOL_COLLISION + 2;
 
 		const BOUNDS_ARRAY = roomData.layers.find(layer => layer.name === "bounds").data;
@@ -56,6 +61,7 @@ async function constructRoom(room) {
 
 		EVENTS_ARRAY_DATA.forEach(event => {
 			event.objects[0].name = event.name;
+			event.objects[0].y -= event.objects[0].height;
 			room.events.push(new EventTile(event.objects[0]));
 		});
 	});
@@ -77,11 +83,12 @@ async function createObjects() {
 	.then(response => response.json())
 	.then(json => {
 		for (const CHARACTER_KEY of Object.keys(json)) {
-			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/sprite.png`;
+			json[CHARACTER_KEY].imgSrc = `./img/characters/${CHARACTER_KEY}/${json[CHARACTER_KEY].spriteName}.png`;
+			json[CHARACTER_KEY].name = CHARACTER_KEY;
 
-			if (CHARACTER_KEY === "player") {
+			if (CHARACTER_KEY === "player") 
 				player = new Player(json[CHARACTER_KEY]);
-			} else NPCS[CHARACTER_KEY] = new Npc(json[CHARACTER_KEY]);
+			else NPCS[CHARACTER_KEY] = new Npc(json[CHARACTER_KEY]);
 		}
 	});
 
@@ -90,7 +97,7 @@ async function createObjects() {
 
 function startGame() {
 	window.addEventListener("keydown", keyDown);
-	window.addEventListener("keyup", keyUp);	
+	window.addEventListener("keyup", keyUp);
 	animateGame();
 }
 
