@@ -13,6 +13,11 @@ function animateGame() {
 	player.move();
 }
 
+function moveRoom(x, y) {
+	for(const OBJ of [...thisRoomNpcs.toArray(), thisRoom])
+		OBJ.move(x, y);
+}
+
 async function changeRoom(roomName, destinationTileName) {
 	thisRoom = ROOMS[roomName];
 
@@ -29,7 +34,7 @@ async function changeRoom(roomName, destinationTileName) {
 	let offSetX = player.x - newPos.x - (newPos.width / 2 - player.width / 2);
 	let offSetY = player.y - newPos.y - (newPos.height / 2 - player.height / 2);
 
-
+	moveRoom(offSetX, offSetY)
 	startGame();
 }
 

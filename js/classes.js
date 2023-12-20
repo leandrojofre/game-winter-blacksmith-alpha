@@ -23,7 +23,7 @@ class Tile{
 
 	draw() {
 		CONTEXT.fillStyle='red';
-		CONTEXT.fillRect(this.x, this.y, this.width, this.height);				
+		CONTEXT.fillRect(this.sides.left, this.sides.bottom, this.sides.right - this.sides.left, this.sides.top - this.sides.bottom);				
 	}
 }
 
@@ -155,36 +155,54 @@ class Player extends Character{
 	}
 
 	move() {
-		/*
-		for(const OBJ of [thisRoom, ...thisRoomNpcs.toArray()])
-			OBJ.move(0, -this.velocity.y);
-
-		if(!this.checkCollisions())
-			this.velocity.y += this.velocity.gravity;
-		else this.velocity.y = 0;
-		*/
-		
 		this.velocity.x = 0;
 		if (KEY_PRESSED.a) 
 			this.velocity.x = -BASE_SPEED;
 		if (KEY_PRESSED.d) 
 			this.velocity.x = BASE_SPEED;
 
-		this.x += this.velocity.x;
-		this.y += this.velocity.y;
-		this.setSides();
+		moveRoom(-this.velocity.x, 0);
 
-		
-		if(this.sides.bottom + this.velocity.y < SCREEN_HEIGHT)
-			this.velocity.y += this.velocity.gravity;
-		else this.velocity.y = 0;
+		for(const TILE of thisRoom.collisions) {
+			if (!(
+				this.sides.left <= TILE.sides.right &&
+				this.sides.right >= TILE.sides.left &&
+				this.sides.bottom >= TILE.sides.top &&
+				this.sides.top <= TILE.sides.bottom
+			)) continue;
+			
+			if (this.velocity.x < 0) {
+				moveRoom(-(TILE.sides.right + 0.01 - this.x), 0);
+				break;
+			}
+			if (this.velocity.x > 0) {
+				moveRoom(-(TILE.sides.left - this.width - 0.01 - this.x), 0);
+				break;
+			}
+		}
 
-		/*
-		Si el personaje esta en el aire
-			caer
-		si no
-			no moverse
-		*/
+		this.velocity.y += this.velocity.gravity;
+		moveRoom(0, -this.velocity.y);
+
+		for(const TILE of thisRoom.collisions) {
+			if (!(
+				this.sides.left <= TILE.sides.right &&
+				this.sides.right >= TILE.sides.left &&
+				this.sides.bottom >= TILE.sides.top &&
+				this.sides.top <= TILE.sides.bottom
+			)) continue;
+
+			if (this.velocity.y < 0) {
+				this.velocity.y = 0;
+				moveRoom(0, -(TILE.sides.bottom + 0.01 - this.y));
+				break;
+			}
+			if (this.velocity.y > 0) {
+				this.velocity.y = 0;
+				moveRoom(0, -(TILE.sides.top - this.height - 0.01 - this.y));
+				break;
+			}			
+		}
 	}
 }
 
