@@ -21,4 +21,16 @@ $GAME_DISPLAY.height = SCREEN_HEIGHT;
 let player;
 let animationID;
 let thisRoom;
-let thisRoomNpcs;
+let thisRoomNpcs = {
+	npcList: [],
+	addNPC: (npcName) => {
+		thisRoomNpcs[npcName] = NPCS[npcName];
+		thisRoomNpcs.npcList.push(npcName);
+	},
+	toArray: () => {
+		let npcArray = [];
+		for(const NPC_KEY of thisRoomNpcs.npcList)
+			npcArray.push(NPCS[NPC_KEY]);
+		return npcArray;
+	}
+};

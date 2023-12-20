@@ -6,18 +6,18 @@ function animateGame() {
 	CONTEXT.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	thisRoom.draw();
-	thisRoom.collisions.forEach(tile => tile.draw())
-	
+	thisRoom.collisions.forEach(tile => tile.draw());	
+	thisRoomNpcs.toArray().forEach(npc => npc.draw());
 	player.draw();
-	NPCS.placeholder.draw();
+
+	player.move();
 }
 
 async function changeRoom(roomName, destinationTileName) {
 	thisRoom = ROOMS[roomName];
-	thisRoomNpcs = {};
 
 	for (const NPC_KEY of Object.keys(NPCS))
-		if (NPCS[NPC_KEY].room === roomName) thisRoomNpcs[NPC_KEY] = NPCS[NPC_KEY];
+		if (NPCS[NPC_KEY].room === roomName) thisRoomNpcs.addNPC(NPC_KEY);
 
 	let destinationTile = thisRoom.events.find(tile => tile.name === destinationTileName);
 	let newPos = {
@@ -28,6 +28,7 @@ async function changeRoom(roomName, destinationTileName) {
 	};
 	let offSetX = player.x - newPos.x - (newPos.width / 2 - player.width / 2);
 	let offSetY = player.y - newPos.y - (newPos.height / 2 - player.height / 2);
+
 
 	startGame();
 }
